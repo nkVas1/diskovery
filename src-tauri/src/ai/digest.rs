@@ -11,19 +11,79 @@ use std::collections::HashMap;
 use std::time::{SystemTime, UNIX_EPOCH};
 
 const CATEGORY_NAMES: [&str; 8] = [
-    "video", "images", "documents", "code", "other", "executables", "audio", "archives",
+    "video",
+    "images",
+    "documents",
+    "code",
+    "other",
+    "executables",
+    "audio",
+    "archives",
 ];
 
 /// Folder names that are meaningful to analysis and safe to send verbatim.
 const WELL_KNOWN: &[&str] = &[
-    "windows", "program files", "program files (x86)", "programdata", "users", "appdata",
-    "local", "locallow", "roaming", "documents", "downloads", "desktop", "pictures", "videos",
-    "music", "onedrive", "node_modules", "target", "src", "dist", "build", ".cargo", ".gradle",
-    ".nuget", ".vscode", ".android", "steam", "steamapps", "common", "games", "epic games",
-    "temp", "tmp", "cache", "caches", "logs", "backup", "backups", "projects", "repos", "github",
-    "coding", "dev", "work", "google", "microsoft", "nvidia", "amd", "intel", "docker", "wsl",
-    "packages", "installer", "softwaredistribution", "winsxs", "system32", "syswow64",
-    "$recycle.bin", "windows.old", "virtualbox vms", "vms",
+    "windows",
+    "program files",
+    "program files (x86)",
+    "programdata",
+    "users",
+    "appdata",
+    "local",
+    "locallow",
+    "roaming",
+    "documents",
+    "downloads",
+    "desktop",
+    "pictures",
+    "videos",
+    "music",
+    "onedrive",
+    "node_modules",
+    "target",
+    "src",
+    "dist",
+    "build",
+    ".cargo",
+    ".gradle",
+    ".nuget",
+    ".vscode",
+    ".android",
+    "steam",
+    "steamapps",
+    "common",
+    "games",
+    "epic games",
+    "temp",
+    "tmp",
+    "cache",
+    "caches",
+    "logs",
+    "backup",
+    "backups",
+    "projects",
+    "repos",
+    "github",
+    "coding",
+    "dev",
+    "work",
+    "google",
+    "microsoft",
+    "nvidia",
+    "amd",
+    "intel",
+    "docker",
+    "wsl",
+    "packages",
+    "installer",
+    "softwaredistribution",
+    "winsxs",
+    "system32",
+    "syswow64",
+    "$recycle.bin",
+    "windows.old",
+    "virtualbox vms",
+    "vms",
 ];
 
 #[derive(Serialize)]
@@ -138,7 +198,11 @@ impl Sanitizer {
             let lower = seg.to_ascii_lowercase();
             if WELL_KNOWN.contains(&lower.as_str()) {
                 parts.push(seg.to_string());
-            } else if self.username.as_deref().is_some_and(|u| u.eq_ignore_ascii_case(seg)) {
+            } else if self
+                .username
+                .as_deref()
+                .is_some_and(|u| u.eq_ignore_ascii_case(seg))
+            {
                 parts.push("<user>".into());
             } else {
                 self.counter += 1;
@@ -258,7 +322,11 @@ pub fn build(tree: &ScanTree, dedup: &DedupState) -> DigestBundle {
             LargeFile {
                 name: san.sanitize_file_name(tree, id),
                 bytes: n.size,
-                age_days: if n.mtime > 0 { (now - n.mtime) / 86_400 } else { -1 },
+                age_days: if n.mtime > 0 {
+                    (now - n.mtime) / 86_400
+                } else {
+                    -1
+                },
             }
         })
         .collect();

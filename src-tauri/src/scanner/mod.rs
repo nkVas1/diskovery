@@ -133,7 +133,11 @@ fn walk(path: PathBuf, name: Box<str>, mtime: i64, prog: &Progress, cancel: &Ato
                     prog.errors.fetch_add(1, Ordering::Relaxed);
                     continue;
                 };
-                let ename: Box<str> = entry.file_name().to_string_lossy().into_owned().into_boxed_str();
+                let ename: Box<str> = entry
+                    .file_name()
+                    .to_string_lossy()
+                    .into_owned()
+                    .into_boxed_str();
                 if ft.is_symlink() {
                     files.push(RawFile {
                         name: ename,
@@ -206,7 +210,8 @@ pub fn scan(root: PathBuf, prog: &Progress, cancel: &AtomicBool) -> ScanTree {
     let root_name: Box<str> = root.display().to_string().into_boxed_str();
     let raw = walk(root.clone(), root_name, 0, prog, cancel);
 
-    let capacity = (prog.files.load(Ordering::Relaxed) + prog.dirs.load(Ordering::Relaxed) + 1) as usize;
+    let capacity =
+        (prog.files.load(Ordering::Relaxed) + prog.dirs.load(Ordering::Relaxed) + 1) as usize;
     let mut nodes: Vec<Node> = Vec::with_capacity(capacity);
     nodes.push(Node {
         name: raw.name,

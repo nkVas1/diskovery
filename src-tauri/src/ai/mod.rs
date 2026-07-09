@@ -45,12 +45,7 @@ pub struct DigestPreview {
 }
 
 fn scan_signature(tree: &crate::scanner::ScanTree) -> String {
-    format!(
-        "{}:{}:{}",
-        tree.root_path.display(),
-        tree.bytes,
-        tree.files
-    )
+    format!("{}:{}:{}", tree.root_path.display(), tree.bytes, tree.files)
 }
 
 fn resolve_target(target: &Option<String>, map: &HashMap<String, String>) -> Option<String> {

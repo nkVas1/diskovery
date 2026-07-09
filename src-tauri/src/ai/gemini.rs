@@ -135,7 +135,9 @@ fn parse_report(body: &str) -> Result<AiReport, String> {
     let text = v["candidates"][0]["content"]["parts"][0]["text"]
         .as_str()
         .ok_or_else(|| {
-            let reason = v["candidates"][0]["finishReason"].as_str().unwrap_or("unknown");
+            let reason = v["candidates"][0]["finishReason"]
+                .as_str()
+                .unwrap_or("unknown");
             format!("empty model response (finishReason: {reason})")
         })?;
     serde_json::from_str::<AiReport>(text).map_err(|e| format!("bad report json: {e}"))

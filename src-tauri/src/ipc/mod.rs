@@ -17,7 +17,11 @@ pub struct ScanState {
 }
 
 #[derive(Serialize, Clone)]
-#[serde(tag = "type", rename_all = "camelCase", rename_all_fields = "camelCase")]
+#[serde(
+    tag = "type",
+    rename_all = "camelCase",
+    rename_all_fields = "camelCase"
+)]
 pub enum ScanEvent {
     Progress {
         files: u64,
@@ -105,7 +109,11 @@ pub fn list_volumes() -> Vec<volumes::VolumeInfo> {
 }
 
 #[tauri::command]
-pub fn start_scan(app: AppHandle, path: String, on_event: Channel<ScanEvent>) -> Result<(), String> {
+pub fn start_scan(
+    app: AppHandle,
+    path: String,
+    on_event: Channel<ScanEvent>,
+) -> Result<(), String> {
     let state = app.state::<ScanState>();
     let target = PathBuf::from(&path);
     if !target.is_dir() {

@@ -42,7 +42,11 @@ pub struct DedupState {
 }
 
 #[derive(Serialize, Clone)]
-#[serde(tag = "type", rename_all = "camelCase", rename_all_fields = "camelCase")]
+#[serde(
+    tag = "type",
+    rename_all = "camelCase",
+    rename_all_fields = "camelCase"
+)]
 pub enum DedupEvent {
     Progress {
         stage: &'static str,
@@ -189,7 +193,10 @@ fn run_pipeline(
     let mut by_prehash: HashMap<(u64, [u8; 32]), Vec<usize>> = HashMap::new();
     for (i, ph) in prehashes.iter().enumerate() {
         if let Some(ph) = ph {
-            by_prehash.entry((candidates[i].size, *ph)).or_default().push(i);
+            by_prehash
+                .entry((candidates[i].size, *ph))
+                .or_default()
+                .push(i);
         }
     }
     let survivors: Vec<usize> = by_prehash
@@ -201,7 +208,10 @@ fn run_pipeline(
     // Stage 2: full hash with cache.
     stage.store(2, Ordering::Relaxed);
     done.store(0, Ordering::Relaxed);
-    total.store(survivors.iter().map(|&i| candidates[i].size).sum(), Ordering::Relaxed);
+    total.store(
+        survivors.iter().map(|&i| candidates[i].size).sum(),
+        Ordering::Relaxed,
+    );
 
     let cache = open_cache(app);
     let mut full_hashes: Vec<Option<[u8; 32]>> = vec![None; candidates.len()];
@@ -263,7 +273,8 @@ fn run_pipeline(
                     if let Some(h) = h {
                         let c = &candidates[*i];
                         let key = c.path.display().to_string();
-                        let _ = table.insert(key.as_str(), pack_cache(c.size, c.mtime, h).as_slice());
+                        let _ =
+                            table.insert(key.as_str(), pack_cache(c.size, c.mtime, h).as_slice());
                     }
                 }
             }
@@ -322,7 +333,11 @@ fn run_pipeline(
 const STAGES: [&str; 3] = ["collecting", "prehashing", "hashing"];
 
 #[tauri::command]
-pub fn start_dedup(app: AppHandle, min_size: u64, on_event: Channel<DedupEvent>) -> Result<(), String> {
+pub fn start_dedup(
+    app: AppHandle,
+    min_size: u64,
+    on_event: Channel<DedupEvent>,
+) -> Result<(), String> {
     let state = app.state::<DedupState>();
     if state.running.swap(true, Ordering::SeqCst) {
         return Err("Duplicate scan already running".into());
@@ -337,7 +352,8 @@ pub fn start_dedup(app: AppHandle, min_size: u64, on_event: Channel<DedupEvent>)
         let finished = Arc::new(AtomicBool::new(false));
 
         let ticker = {
-            let (stage, done, total, finished) = (stage.clone(), done.clone(), total.clone(), finished.clone());
+            let (stage, done, total, finished) =
+                (stage.clone(), done.clone(), total.clone(), finished.clone());
             let ch = on_event.clone();
             std::thread::spawn(move || {
                 while !finished.load(Ordering::Relaxed) {

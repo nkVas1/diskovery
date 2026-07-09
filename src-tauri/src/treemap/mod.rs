@@ -46,17 +46,19 @@ pub fn category_of(name: &str) -> u8 {
     match ext.as_str() {
         "mp4" | "mkv" | "avi" | "mov" | "wmv" | "flv" | "webm" | "m4v" | "mpg" | "mpeg" | "ts"
         | "m2ts" | "vob" => CAT_VIDEO,
-        "jpg" | "jpeg" | "png" | "gif" | "bmp" | "webp" | "tif" | "tiff" | "svg" | "ico" | "heic"
-        | "raw" | "cr2" | "nef" | "psd" | "ai" => CAT_IMAGE,
-        "pdf" | "docx" | "doc" | "xlsx" | "xls" | "pptx" | "ppt" | "txt" | "rtf" | "odt" | "csv"
-        | "epub" | "md" => CAT_DOCUMENT,
+        "jpg" | "jpeg" | "png" | "gif" | "bmp" | "webp" | "tif" | "tiff" | "svg" | "ico"
+        | "heic" | "raw" | "cr2" | "nef" | "psd" | "ai" => CAT_IMAGE,
+        "pdf" | "docx" | "doc" | "xlsx" | "xls" | "pptx" | "ppt" | "txt" | "rtf" | "odt"
+        | "csv" | "epub" | "md" => CAT_DOCUMENT,
         "rs" | "tsx" | "jsx" | "js" | "mjs" | "py" | "c" | "cpp" | "h" | "hpp" | "cs" | "java"
-        | "kt" | "go" | "rb" | "php" | "html" | "css" | "scss" | "json" | "xml" | "yaml" | "yml"
-        | "toml" | "sql" | "sh" | "ps1" | "lock" | "map" => CAT_CODE,
+        | "kt" | "go" | "rb" | "php" | "html" | "css" | "scss" | "json" | "xml" | "yaml"
+        | "yml" | "toml" | "sql" | "sh" | "ps1" | "lock" | "map" => CAT_CODE,
         "exe" | "dll" | "msi" | "sys" | "bat" | "cmd" | "com" | "scr" | "drv" | "ocx" | "cpl" => {
             CAT_EXECUTABLE
         }
-        "mp3" | "flac" | "wav" | "aac" | "ogg" | "m4a" | "wma" | "opus" | "mid" | "aiff" => CAT_AUDIO,
+        "mp3" | "flac" | "wav" | "aac" | "ogg" | "m4a" | "wma" | "opus" | "mid" | "aiff" => {
+            CAT_AUDIO
+        }
         "zip" | "rar" | "7z" | "tar" | "gz" | "bz2" | "xz" | "zst" | "iso" | "cab" | "img"
         | "dmg" | "wim" => CAT_ARCHIVE,
         _ => CAT_OTHER,
@@ -130,7 +132,14 @@ fn add_ridge(c: &mut Coef, x0: f32, x1: f32, y0: f32, y1: f32, h: f32) {
 
 /// Squarified layout (Bruls et al.) of `items` (id, size, sorted desc) into
 /// the given rect; calls `place` for each item with its computed rect.
-fn squarify(items: &[(u32, f64)], x: f64, y: f64, w: f64, h: f64, place: &mut impl FnMut(u32, f64, f64, f64, f64)) {
+fn squarify(
+    items: &[(u32, f64)],
+    x: f64,
+    y: f64,
+    w: f64,
+    h: f64,
+    place: &mut impl FnMut(u32, f64, f64, f64, f64),
+) {
     let total: f64 = items.iter().map(|i| i.1).sum();
     if total <= 0.0 || w <= 0.0 || h <= 0.0 {
         return;
@@ -161,7 +170,11 @@ fn squarify(items: &[(u32, f64)], x: f64, y: f64, w: f64, h: f64, place: &mut im
             // row along the top
             let mut cx = x;
             for &(id, sz) in &items[i..row_end] {
-                let iw = if row_sum > 0.0 { sz * scale / thickness } else { 0.0 };
+                let iw = if row_sum > 0.0 {
+                    sz * scale / thickness
+                } else {
+                    0.0
+                };
                 place(id, cx, y, iw, thickness);
                 cx += iw;
             }
@@ -170,7 +183,11 @@ fn squarify(items: &[(u32, f64)], x: f64, y: f64, w: f64, h: f64, place: &mut im
         } else {
             let mut cy = y;
             for &(id, sz) in &items[i..row_end] {
-                let ih = if row_sum > 0.0 { sz * scale / thickness } else { 0.0 };
+                let ih = if row_sum > 0.0 {
+                    sz * scale / thickness
+                } else {
+                    0.0
+                };
                 place(id, x, cy, thickness, ih);
                 cy += ih;
             }
@@ -216,7 +233,14 @@ fn layout_node(
     }
     let node = &tree.nodes[id as usize];
     let mut coef = parent_coef;
-    add_ridge(&mut coef, x, x + w, y, y + h, RIDGE_HEIGHT * RIDGE_FALLOFF.powi(depth as i32));
+    add_ridge(
+        &mut coef,
+        x,
+        x + w,
+        y,
+        y + h,
+        RIDGE_HEIGHT * RIDGE_FALLOFF.powi(depth as i32),
+    );
 
     let descend = node.is_dir() && node.child_count > 0 && w * h >= MIN_DESCEND_AREA && depth < 40;
     if !descend {
@@ -259,9 +283,16 @@ fn layout_node(
     items.sort_unstable_by(|a, b| b.1.partial_cmp(&a.1).unwrap_or(std::cmp::Ordering::Equal));
 
     let mut placements: Vec<(u32, f64, f64, f64, f64)> = Vec::with_capacity(items.len());
-    squarify(&items, x as f64, y as f64, w as f64, h as f64, &mut |cid, cx, cy, cw, ch| {
-        placements.push((cid, cx, cy, cw, ch));
-    });
+    squarify(
+        &items,
+        x as f64,
+        y as f64,
+        w as f64,
+        h as f64,
+        &mut |cid, cx, cy, cw, ch| {
+            placements.push((cid, cx, cy, cw, ch));
+        },
+    );
 
     for (cid, cx, cy, cw, ch) in placements {
         let (cx, cy, cw, ch) = (cx as f32, cy as f32, cw as f32, ch as f32);
@@ -426,7 +457,10 @@ pub fn treemap_render(
 }
 
 #[tauri::command]
-pub fn treemap_meta(scan: State<'_, ScanState>, tm: State<'_, TreemapState>) -> Result<TreemapMeta, String> {
+pub fn treemap_meta(
+    scan: State<'_, ScanState>,
+    tm: State<'_, TreemapState>,
+) -> Result<TreemapMeta, String> {
     let guard = scan.tree.read();
     let tree = guard.as_ref().ok_or("No scan available")?;
     let lg = tm.layout.read();

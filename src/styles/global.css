@@ -67,6 +67,23 @@ body {
   background: transparent;
 }
 
+/* a11y: visible keyboard focus, calm motion for those who ask for it */
+:focus-visible {
+  outline: 2px solid var(--color-glow-cyan);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
 /* Signature gradient utilities */
 .text-gradient {
   background: linear-gradient(135deg, var(--color-glow-cyan), var(--color-glow-violet));

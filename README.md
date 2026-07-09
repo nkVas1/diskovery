@@ -10,7 +10,7 @@ professional duplicate detection and an AI advisor that explains *what* eats you
 [![Status](https://img.shields.io/badge/status-in%20development-blueviolet)](docs/ROADMAP.md)
 [![Stack](https://img.shields.io/badge/Tauri%202-Rust%20%2B%20React-orange)](docs/ARCHITECTURE.md)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
-[![Platform](https://img.shields.io/badge/platform-Windows%2010%2F11-0078d4)](#)
+![Platform](https://img.shields.io/badge/platform-Windows%2010%2F11-0078d4)
 
 *A spiritual successor to WinDirStat, rebuilt for 2026.*
 
@@ -46,12 +46,13 @@ professional duplicate detection and an AI advisor that explains *what* eats you
 
 ## Status
 
-🚧 **Phase 0 — foundation.** Charter, architecture and roadmap are in place; the application
-scaffold is next. Follow the [Roadmap](docs/ROADMAP.md).
+✅ **v0.1.0 — feature-complete core.** Turbo scan, cushion treemap, duplicate lab,
+safety-tiered advisor and AI insights are all working. The road to 1.0 (MFT fast
+path, UI i18n, WebGL treemap, auto-update) lives in the [Roadmap](docs/ROADMAP.md).
 
 ## Architecture at a glance
 
-```
+```text
 ┌───────────── Frontend — React 19 + TypeScript (WebView2) ─────────────┐
 │  GPU treemap · scan dashboard · duplicate lab · advisor · AI panel    │
 ├────────────────────────── typed Tauri IPC ────────────────────────────┤
@@ -74,7 +75,9 @@ npm install
 npm run tauri dev
 ```
 
-*(Commands become available once the Phase 0 scaffold lands.)*
+Release build with NSIS installer: `npm run tauri build`.
+For AI Insights, paste a [Gemini API key](https://aistudio.google.com/apikey) in
+Settings (or set `GOOGLE_GENERATIVE_AI_API_KEY` in a local `.env`).
 
 ## Documentation
 

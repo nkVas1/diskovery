@@ -101,10 +101,9 @@ fn resolve_env_key_exists() -> bool {
     };
     for _ in 0..3 {
         if let Ok(content) = std::fs::read_to_string(dir.join(".env")) {
-            if content
-                .lines()
-                .any(|l| l.trim().starts_with("GOOGLE_GENERATIVE_AI_API_KEY=") && l.trim().len() > 29)
-            {
+            if content.lines().any(|l| {
+                l.trim().starts_with("GOOGLE_GENERATIVE_AI_API_KEY=") && l.trim().len() > 29
+            }) {
                 return true;
             }
         }
@@ -125,7 +124,11 @@ pub fn set_settings(
     {
         let mut s = state.0.write();
         if let Some(k) = gemini_key {
-            s.gemini_key = if k.trim().is_empty() { None } else { Some(k.trim().to_string()) };
+            s.gemini_key = if k.trim().is_empty() {
+                None
+            } else {
+                Some(k.trim().to_string())
+            };
         }
         if let Some(l) = ai_language {
             s.ai_language = Some(l);

@@ -1,116 +1,106 @@
 # Diskovery — Development Roadmap
 
 Guiding principle: **every phase ends with a runnable app that is demonstrably better than before.**
-Order is fixed; timing is flexible. Checkboxes are updated as work lands.
+Status: **v0.1.0 — all six phases landed in their core form.** Unchecked items form the → 1.0 backlog.
 
 ---
 
-## Phase 0 — Foundation ✦ *current*
-
-Goal: a project skeleton that compiles, launches and is properly hosted.
+## Phase 0 — Foundation ✅
 
 - [x] Research state of the art: WizTree MFT scanning, czkawka dedup pipeline, Tauri 2 maturity, Gemini pricing
 - [x] Pivotal decisions: stack (Tauri 2 + Rust + React), name (**Diskovery**), public GitHub repo
 - [x] Charter docs: README, ARCHITECTURE, AI-PRIVACY, this roadmap
-- [ ] Scaffold Tauri 2 app: Vite + React 19 + TypeScript (strict) + Tailwind CSS v4
-- [ ] CI (GitHub Actions): `cargo fmt --check`, `clippy`, `tsc --noEmit`, build — on PR & main
-- [ ] App shell: window chrome, dark-first theme system, navigation skeleton
+- [x] Scaffold Tauri 2 app: Vite + React 19 + TypeScript (strict) + Tailwind CSS v4
+- [x] CI (GitHub Actions): `cargo fmt --check`, `clippy -D warnings`, `tsc`, vite build
+- [x] App shell: custom title bar, Abyss dark theme, nav rail
 
-**Deliverable:** `npm run tauri dev` opens the Diskovery shell.
-
----
-
-## Phase 1 — Scan Engine
-
-Goal: scan any drive or folder fast and stream results live.
-
-- [ ] Multi-threaded directory walker (rayon), long-path (`\\?\`) aware, junction/symlink cycle-safe
-- [ ] NTFS MFT fast path (elevated): full-volume file table in seconds
-- [ ] Streaming IPC: progress events (files/s, bytes, current path), incremental tree building in UI
-- [ ] In-memory file tree with per-node aggregates (size, count, extension stats)
-- [ ] Scan dashboard: live counters, top folders / files / extensions
-- [ ] Elevation flow (UAC prompt) + graceful non-admin fallback
-
-**Deliverable:** full `C:` scan with a live dashboard; MFT path ≥ 10× faster than the walker.
+**Delivered:** `npm run tauri dev` opens the Diskovery shell.
 
 ---
 
-## Phase 2 — Treemap & Explorer
+## Phase 1 — Scan Engine ✅ (core)
 
-Goal: the signature visualization plus everyday file operations.
+- [x] Multi-threaded directory walker (rayon), reparse-point safe (no junction/symlink cycles)
+- [x] Streaming IPC: progress events every 90 ms, live counters in UI
+- [x] BFS arena tree with contiguous children (folder listing = slice, not traversal)
+- [x] Scan dashboard: volume cards with capacity meters, live KPI tiles, top folders / files / extensions
+- [ ] → 1.0: NTFS MFT fast path (elevated raw-volume read, WizTree-class)
+- [ ] → 1.0: elevation flow (UAC prompt) for system-protected dirs
 
-- [ ] Squarified treemap layout engine (computed in Rust, serialized to the UI)
-- [ ] GPU renderer (WebGL2): cushion shading, 60 fps pan/zoom on 1M+ nodes
-- [ ] Animated drill-down/up, hover inspector, breadcrumb path bar
-- [ ] Category color system (media, code, archives, documents, system…)
-- [ ] File operations: open, reveal in Explorer, properties, delete to Recycle Bin
-- [ ] Search and filters (size / age / type)
-
-**Deliverable:** fluid treemap navigation with full feature parity with classic WinDirStat.
+**Delivered:** full-drive scans with live telemetry; graceful skip-and-count on access-denied.
 
 ---
 
-## Phase 3 — Duplicate Lab
+## Phase 2 — Treemap & Explorer ✅ (core)
 
-Goal: professional-grade duplicate detection.
+- [x] Squarified layout (Bruls et al.) computed in the Rust core
+- [x] Van Wijk cushion shading rasterized in-core; full RGBA frame shipped over IPC to canvas
+- [x] Grid-indexed hit-testing, hover inspector, click-select, double-click drill-down
+- [x] Breadcrumb navigation, depth-1 folder labels
+- [x] Fixed-order 8-slot category palette (dataviz-validated, CVD-aware)
+- [x] File ops: open, reveal in Explorer, delete to Recycle Bin (ancestor sizes update live)
+- [ ] → 1.0: search & filters (size / age / type)
+- [ ] → 1.0: WebGL2 renderer with animated zoom transitions
 
-- [ ] Three-stage pipeline: size groups → BLAKE3 prehash (first 2 KB) → full BLAKE3 (parallel, mmap)
-- [ ] Persistent hash cache (redb, keyed by volume + file id + size + mtime) → incremental re-scans
-- [ ] Hardlink/junction awareness (NTFS file IDs) — zero false duplicates
-- [ ] Duplicate lab UI: groups, wasted-space totals, image/media previews
-- [ ] Keep-strategies: newest / oldest / by folder priority / manual selection
-- [ ] Actions: delete to Recycle Bin; replace with hardlink (expert mode)
-
-**Deliverable:** multi-TB dedup pass in minutes with byte-identical guarantees.
-
----
-
-## Phase 4 — Cleanup Advisor
-
-Goal: tell the user what is safe to remove — with receipts.
-
-- [ ] Data-driven knowledge base (embedded): 40+ known Windows space sinks
-- [ ] Safety tiers: 🟢 Safe / 🟡 Caution / 🔴 Expert — each with a rationale and consequences
-- [ ] Detectors: temp dirs, browser & shader caches, `Windows.old`, `hiberfil.sys`, Delivery
-      Optimization, WinSxS estimate, Recycle Bin, npm/pip/cargo/gradle caches, stale
-      `node_modules` / `target` dirs, installer leftovers, oversized logs
-- [ ] Reclaimable-size estimation per finding + one-click cleanup for the Safe tier
-- [ ] Reversibility first: Recycle Bin by default, restore-point advice for system items
-
-**Deliverable:** the advisor finds real 5–50 GB on a typical dev machine with zero harmful suggestions.
+**Delivered:** the signature visualization with full inspect/act loop.
 
 ---
 
-## Phase 5 — AI Insights
+## Phase 3 — Duplicate Lab ✅ (core)
 
-Goal: Gemini turns statistics into an expert, personalized plan.
+- [x] Three-stage pipeline: size groups → 16 KB BLAKE3 prehash → full BLAKE3 (parallel, mmap ≥ 4 MB)
+- [x] Persistent hash cache (redb, keyed by path + size + mtime) → incremental re-runs
+- [x] Hardlink awareness via NTFS file identity — zero false duplicates
+- [x] Lab UI: staged progress, wasted-space totals, group cards, min-size filter
+- [x] Keep-newest strategy + per-file recycle
+- [ ] → 1.0: keep-oldest / by-folder-priority strategies, replace-with-hardlink (expert)
 
-- [ ] Digest builder: anonymized scan summary (see [AI-PRIVACY](AI-PRIVACY.md)), ≤ ~4K tokens
-- [ ] Gemini client: `gemini-3.1-flash-lite`, structured JSON output, retry/backoff
-- [ ] Data passport UI: show the exact payload before sending; strict opt-in
-- [ ] Insights panel: narrative analysis, prioritized action plan, risk notes
-- [ ] “Explain this folder” contextual action
-- [ ] Token discipline: digest cached per scan; no re-asking for unchanged data
-
-**Deliverable:** one click → a readable expert report; the payload is provably anonymous.
+**Delivered:** byte-identical guarantees with cached re-scans.
 
 ---
 
-## Phase 6 — Polish & Release 1.0
+## Phase 4 — Cleanup Advisor ✅ (core)
 
-- [ ] Performance profiling passes (scan, treemap, memory footprint)
-- [ ] i18n: EN + RU; accessibility: keyboard navigation, contrast, reduced motion
-- [ ] Onboarding, empty states, error surfaces
-- [ ] Installer (MSI/NSIS via Tauri bundler), auto-update strategy
-- [ ] Screenshots/GIFs for README, `v1.0.0` GitHub release
+- [x] Embedded knowledge base: 21 curated rules (temp, browser/GPU/package caches, Windows.old,
+      hiberfil, WinSxS, Docker/WSL, stale node_modules & cargo targets, big logs, disc images…)
+- [x] Safety tiers 🟢 Safe / 🟡 Caution / 🔴 Expert — every finding carries a rationale + action hint
+- [x] Matchers: env-expanded absolute paths, volume-root relative, dir-name with sibling +
+      staleness conditions, extension + min-size
+- [x] Advice-only findings for system-managed sinks (never offers to delete WinSxS & co.)
+- [x] One-click recycle with per-item failure tolerance (files in use are skipped and counted)
+- [ ] → 1.0: grow KB toward 40+ rules, restore-point advice, WinSxS true-size estimate
 
-**Deliverable:** public 1.0 with a showcase README.
+**Delivered:** real gigabytes found on a dev machine with zero harmful suggestions.
+
+---
+
+## Phase 5 — AI Insights ✅ (core)
+
+- [x] Anonymized digest builder: categories, extensions, sanitized top folders, age profile,
+      duplicates & advisor stats — user names replaced by `<dirN>` tokens, map stays on-device
+- [x] Gemini client: `gemini-3.1-flash-lite`, structured JSON output schema, retry/backoff
+- [x] Data passport: the exact payload + token estimate, shown before anything is sent
+- [x] Per-scan report cache; strict opt-in (nothing sent until the button is clicked)
+- [x] Settings vault for the API key (settings → env → .env resolution), RU/EN response language
+- [ ] → 1.0: "Explain this folder" contextual action, token-level cost meter
+
+**Delivered:** one click → prioritized expert plan; payload provably anonymous.
+
+---
+
+## Phase 6 — Polish & Release ✅ (0.1)
+
+- [x] a11y: visible keyboard focus, `prefers-reduced-motion` support
+- [x] NSIS installer via Tauri bundler
+- [x] `v0.1.0` tagged GitHub release
+- [ ] → 1.0: UI i18n (EN/RU) — AI answers already speak both
+- [ ] → 1.0: screenshots/GIFs in README, perf profiling passes, auto-update
 
 ---
 
 ## Beyond 1.0 (idea backlog)
 
 - Similar-media detection (perceptual hashes for images/video)
-- Scan snapshots & diffing over time (“what grew this month?”)
+- Scan snapshots & diffing over time ("what grew this month?")
 - Portable mode, CLI companion, scheduled background scans
 - Local LLM fallback (zero-cloud mode)
