@@ -127,3 +127,50 @@ export const treemapHit = (x: number, y: number) =>
 export const openItem = (id: number) => invoke<void>("open_item", { id });
 export const revealItem = (id: number) => invoke<void>("reveal_item", { id });
 export const trashItem = (id: number) => invoke<number>("trash_item", { id });
+
+/* ---- duplicates ---- */
+
+export type DedupEvent =
+  | { type: "progress"; stage: "collecting" | "prehashing" | "hashing"; done: number; total: number }
+  | {
+      type: "done";
+      groups: number;
+      wastedBytes: number;
+      hashedBytes: number;
+      cacheHits: number;
+      elapsedMs: number;
+    }
+  | { type: "error"; message: string };
+
+export interface DupFile {
+  id: number;
+  name: string;
+  dir: string;
+  mtime: number;
+}
+
+export interface DupGroup {
+  size: number;
+  wasted: number;
+  hash: string;
+  files: DupFile[];
+}
+
+export interface DedupResults {
+  totalGroups: number;
+  totalWasted: number;
+  hashedBytes: number;
+  cacheHits: number;
+  elapsedMs: number;
+  groups: DupGroup[];
+}
+
+export function startDedup(minSize: number, onEvent: (e: DedupEvent) => void) {
+  const channel = new Channel<DedupEvent>();
+  channel.onmessage = onEvent;
+  return invoke<void>("start_dedup", { minSize, onEvent: channel });
+}
+
+export const cancelDedup = () => invoke<void>("cancel_dedup");
+export const dedupResults = (offset: number, limit: number) =>
+  invoke<DedupResults>("dedup_results", { offset, limit });

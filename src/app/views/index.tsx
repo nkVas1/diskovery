@@ -1,24 +1,13 @@
 import type { ViewId } from "@/app/store";
 import DashboardView from "./DashboardView";
 import TreemapView from "./TreemapView";
+import DuplicatesView from "./DuplicatesView";
 import ComingSoon from "./ComingSoon";
 
 export const views: Record<ViewId, React.ReactNode> = {
   dashboard: <DashboardView />,
   treemap: <TreemapView />,
-  duplicates: (
-    <ComingSoon
-      phase={3}
-      title="Duplicate Lab"
-      description="Three-stage BLAKE3 pipeline finds byte-identical files with zero false positives — and remembers hashes between sessions."
-      features={[
-        "Size groups → 2 KB prehash → full BLAKE3",
-        "Persistent hash cache for instant re-scans",
-        "Keep-strategies: newest, oldest, by folder",
-        "Recycle Bin first; hardlink replacement for experts",
-      ]}
-    />
-  ),
+  duplicates: <DuplicatesView />,
   advisor: (
     <ComingSoon
       phase={4}
