@@ -1,0 +1,21 @@
+# Dependencies & build artifacts
+node_modules/
+dist/
+target/
+src-tauri/gen/
+
+# Secrets & local env
+.env
+.env.*
+!.env.example
+
+# IDE & OS noise
+.idea/
+.vscode/
+*.log
+Thumbs.db
+desktop.ini
+
+# Personal working notes & scratch (not part of the public project)
+dev-notes/
+.scratch/
