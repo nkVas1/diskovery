@@ -1,7 +1,7 @@
 //! Rules engine: evaluates the knowledge base against the scan tree and
 //! executes tier-gated cleanups (always via the Recycle Bin).
 
-mod rules;
+pub(crate) mod rules;
 
 use crate::ipc::ScanState;
 use crate::scanner::{ScanTree, FLAG_DELETED, FLAG_DIR, FLAG_REPARSE};
@@ -106,7 +106,7 @@ fn now_secs() -> i64 {
         .unwrap_or(0)
 }
 
-fn evaluate(tree: &ScanTree) -> Vec<Finding> {
+pub(crate) fn evaluate(tree: &ScanTree) -> Vec<Finding> {
     let now = now_secs();
     let mut findings = Vec::new();
 

@@ -1,9 +1,14 @@
 mod advisor;
+mod ai;
 mod dedup;
 mod fileops;
 mod ipc;
 mod scanner;
+mod settings;
 mod treemap;
+
+use parking_lot::RwLock;
+use tauri::Manager;
 
 pub fn run() {
     tauri::Builder::default()
@@ -13,6 +18,12 @@ pub fn run() {
         .manage(treemap::TreemapState::default())
         .manage(dedup::DedupState::default())
         .manage(advisor::AdvisorState::default())
+        .manage(ai::AiState::default())
+        .setup(|app| {
+            let loaded = settings::load(app.handle());
+            app.manage(settings::SettingsState(RwLock::new(loaded)));
+            Ok(())
+        })
         .invoke_handler(tauri::generate_handler![
             ipc::app_info,
             ipc::list_volumes,
@@ -32,6 +43,10 @@ pub fn run() {
             dedup::dedup_results,
             advisor::advisor_analyze,
             advisor::advisor_clean,
+            settings::get_settings,
+            settings::set_settings,
+            ai::ai_digest_preview,
+            ai::ai_analyze,
         ])
         .run(tauri::generate_context!())
         .expect("error while running Diskovery");

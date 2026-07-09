@@ -311,7 +311,7 @@ function ErrorState() {
     <div className="flex h-full items-center justify-center p-8">
       <div className="max-w-md text-center">
         <h1 className="text-xl font-bold text-danger">Scan failed</h1>
-        <p className="mt-2 text-sm break-words text-ink-mute">{error}</p>
+        <p className="mt-2 text-sm wrap-break-word text-ink-mute">{error}</p>
         <button
           onClick={reset}
           className="mt-6 rounded-xl border border-edge px-5 py-2 text-[13px] font-semibold text-ink-mute hover:text-ink"

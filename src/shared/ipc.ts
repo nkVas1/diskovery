@@ -200,3 +200,46 @@ export interface CleanReport {
 export const advisorAnalyze = () => invoke<FindingDto[]>("advisor_analyze");
 export const advisorClean = (ruleId: string) =>
   invoke<CleanReport>("advisor_clean", { ruleId });
+
+/* ---- settings ---- */
+
+export interface SettingsDto {
+  hasGeminiKey: boolean;
+  keySource: "settings" | "env" | "none";
+  aiLanguage: string;
+}
+
+export const getSettings = () => invoke<SettingsDto>("get_settings");
+export const setSettings = (patch: { geminiKey?: string; aiLanguage?: string }) =>
+  invoke<SettingsDto>("set_settings", patch);
+
+/* ---- AI insights ---- */
+
+export interface DigestPreview {
+  json: string;
+  approxTokens: number;
+}
+
+export interface AiAction {
+  title: string;
+  detail: string;
+  target?: string | null;
+  estimatedBytes?: number | null;
+  risk: Tier;
+  kind: "advisor" | "duplicates" | "manual";
+  resolvedTarget?: string | null;
+}
+
+export interface AiAnalysis {
+  headline: string;
+  summary: string;
+  health: "good" | "attention" | "critical";
+  actions: AiAction[];
+  observations: string[];
+  model: string;
+  approxTokens: number;
+  cached: boolean;
+}
+
+export const aiDigestPreview = () => invoke<DigestPreview>("ai_digest_preview");
+export const aiAnalyze = (force = false) => invoke<AiAnalysis>("ai_analyze", { force });
