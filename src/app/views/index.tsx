@@ -1,22 +1,11 @@
 import type { ViewId } from "@/app/store";
 import DashboardView from "./DashboardView";
+import TreemapView from "./TreemapView";
 import ComingSoon from "./ComingSoon";
 
 export const views: Record<ViewId, React.ReactNode> = {
   dashboard: <DashboardView />,
-  treemap: (
-    <ComingSoon
-      phase={2}
-      title="Living Treemap"
-      description="Every file on your drive as a single luminous mosaic — cushion-shaded, GPU-drawn, zoomable to the last byte."
-      features={[
-        "Squarified layout computed in the Rust core",
-        "Animated drill-down and hover inspector",
-        "Category color system for instant reading",
-        "Open, reveal and recycle straight from the map",
-      ]}
-    />
-  ),
+  treemap: <TreemapView />,
   duplicates: (
     <ComingSoon
       phase={3}

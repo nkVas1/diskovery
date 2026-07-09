@@ -41,6 +41,7 @@ interface ScanStore {
   start: (path: string, expectedBytes?: number) => Promise<void>;
   cancel: () => Promise<void>;
   reset: () => void;
+  refreshSummary: () => Promise<void>;
 }
 
 export const useScan = create<ScanStore>((set, get) => ({
@@ -95,4 +96,12 @@ export const useScan = create<ScanStore>((set, get) => ({
   },
 
   reset: () => set({ status: "idle", target: null, summary: null, error: null }),
+
+  refreshSummary: async () => {
+    try {
+      set({ summary: await getScanSummary() });
+    } catch {
+      // keep the stale summary
+    }
+  },
 }));

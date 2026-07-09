@@ -12,6 +12,7 @@ use std::time::{SystemTime, UNIX_EPOCH};
 
 pub const FLAG_DIR: u8 = 1;
 pub const FLAG_REPARSE: u8 = 2;
+pub const FLAG_DELETED: u8 = 4;
 
 /// One filesystem entry in the arena. Children of a directory occupy a
 /// contiguous range `[child_start, child_start + child_count)`, so listing

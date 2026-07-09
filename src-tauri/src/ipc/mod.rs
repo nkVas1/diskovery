@@ -11,7 +11,7 @@ use tauri::{AppHandle, Manager, State};
 
 #[derive(Default)]
 pub struct ScanState {
-    pub tree: RwLock<Option<Arc<ScanTree>>>,
+    pub tree: RwLock<Option<ScanTree>>,
     pub running: AtomicBool,
     pub cancel: Arc<AtomicBool>,
 }
@@ -162,7 +162,7 @@ pub fn start_scan(app: AppHandle, path: String, on_event: Channel<ScanEvent>) ->
             errors: tree.errors,
             elapsed_ms: tree.elapsed_ms,
         };
-        *state.tree.write() = Some(Arc::new(tree));
+        *state.tree.write() = Some(tree);
         state.running.store(false, Ordering::SeqCst);
         let _ = on_event.send(event);
     });
@@ -175,13 +175,10 @@ pub fn cancel_scan(state: State<'_, ScanState>) {
     state.cancel.store(true, Ordering::SeqCst);
 }
 
-fn current_tree(state: &State<'_, ScanState>) -> Result<Arc<ScanTree>, String> {
-    state.tree.read().clone().ok_or_else(|| "No scan available".into())
-}
-
 #[tauri::command]
 pub fn scan_summary(state: State<'_, ScanState>) -> Result<ScanSummary, String> {
-    let tree = current_tree(&state)?;
+    let guard = state.tree.read();
+    let tree = guard.as_ref().ok_or("No scan available")?;
     let root = &tree.nodes[0];
 
     let mut top_dirs: Vec<u32> = (root.child_start..root.child_start + root.child_count)
@@ -212,7 +209,7 @@ pub fn scan_summary(state: State<'_, ScanState>) -> Result<ScanSummary, String> 
         bytes: tree.bytes,
         errors: tree.errors,
         elapsed_ms: tree.elapsed_ms,
-        top_dirs: top_dirs.into_iter().map(|id| node_dto(&tree, id)).collect(),
+        top_dirs: top_dirs.into_iter().map(|id| node_dto(tree, id)).collect(),
         top_files,
         top_exts: tree.ext_stats.iter().take(20).cloned().collect(),
     })
@@ -220,19 +217,21 @@ pub fn scan_summary(state: State<'_, ScanState>) -> Result<ScanSummary, String> 
 
 #[tauri::command]
 pub fn get_children(state: State<'_, ScanState>, id: u32) -> Result<Vec<NodeDto>, String> {
-    let tree = current_tree(&state)?;
+    let guard = state.tree.read();
+    let tree = guard.as_ref().ok_or("No scan available")?;
     let n = tree
         .nodes
         .get(id as usize)
         .ok_or_else(|| "Unknown node".to_string())?;
     let mut ids: Vec<u32> = (n.child_start..n.child_start + n.child_count).collect();
     ids.sort_unstable_by_key(|&i| Reverse(tree.nodes[i as usize].size));
-    Ok(ids.into_iter().map(|i| node_dto(&tree, i)).collect())
+    Ok(ids.into_iter().map(|i| node_dto(tree, i)).collect())
 }
 
 #[tauri::command]
 pub fn node_path(state: State<'_, ScanState>, id: u32) -> Result<String, String> {
-    let tree = current_tree(&state)?;
+    let guard = state.tree.read();
+    let tree = guard.as_ref().ok_or("No scan available")?;
     if id as usize >= tree.nodes.len() {
         return Err("Unknown node".into());
     }
