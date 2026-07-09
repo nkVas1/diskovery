@@ -1,0 +1,79 @@
+@import "tailwindcss";
+@import "@fontsource-variable/inter";
+@import "@fontsource/jetbrains-mono/400.css";
+@import "@fontsource/jetbrains-mono/600.css";
+
+@theme {
+  --font-sans: "Inter Variable", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "Cascadia Code", monospace;
+
+  /* Abyss palette — dark-first identity */
+  --color-void: #060911;
+  --color-panel: #0b101b;
+  --color-raised: #101725;
+  --color-overlay: #161e30;
+  --color-edge: #1c2536;
+  --color-edge-soft: #131a29;
+
+  --color-ink: #e7ecf5;
+  --color-ink-mute: #8b99b3;
+  --color-ink-faint: #5b6880;
+
+  --color-glow-cyan: #2fd4f0;
+  --color-glow-violet: #8b5cf6;
+  --color-ok: #34d399;
+  --color-warn: #fbbf24;
+  --color-danger: #f87171;
+
+  /* Data-mark colors — dataviz-validated on --color-panel (dark surface).
+     glow-* are chrome/branding only; data marks use these. */
+  --color-data-cyan: #0891b2;
+  --color-data-violet: #8b5cf6;
+  --color-data-track: #141b29;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  @apply bg-void font-sans text-ink antialiased;
+  overflow: hidden;
+  user-select: none;
+}
+
+::selection {
+  background: color-mix(in srgb, var(--color-glow-cyan) 30%, transparent);
+}
+
+*::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+*::-webkit-scrollbar-thumb {
+  background: var(--color-edge);
+  border-radius: 8px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+*::-webkit-scrollbar-thumb:hover {
+  background: #2a3550;
+  background-clip: padding-box;
+  border: 2px solid transparent;
+}
+*::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+/* Signature gradient utilities */
+.text-gradient {
+  background: linear-gradient(135deg, var(--color-glow-cyan), var(--color-glow-violet));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.bg-gradient-glow {
+  background: linear-gradient(135deg, var(--color-glow-cyan), var(--color-glow-violet));
+}
