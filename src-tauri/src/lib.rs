@@ -1,3 +1,4 @@
+mod advisor;
 mod dedup;
 mod fileops;
 mod ipc;
@@ -11,6 +12,7 @@ pub fn run() {
         .manage(ipc::ScanState::default())
         .manage(treemap::TreemapState::default())
         .manage(dedup::DedupState::default())
+        .manage(advisor::AdvisorState::default())
         .invoke_handler(tauri::generate_handler![
             ipc::app_info,
             ipc::list_volumes,
@@ -28,6 +30,8 @@ pub fn run() {
             dedup::start_dedup,
             dedup::cancel_dedup,
             dedup::dedup_results,
+            advisor::advisor_analyze,
+            advisor::advisor_clean,
         ])
         .run(tauri::generate_context!())
         .expect("error while running Diskovery");

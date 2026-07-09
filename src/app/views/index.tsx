@@ -2,24 +2,14 @@ import type { ViewId } from "@/app/store";
 import DashboardView from "./DashboardView";
 import TreemapView from "./TreemapView";
 import DuplicatesView from "./DuplicatesView";
+import AdvisorView from "./AdvisorView";
 import ComingSoon from "./ComingSoon";
 
 export const views: Record<ViewId, React.ReactNode> = {
   dashboard: <DashboardView />,
   treemap: <TreemapView />,
   duplicates: <DuplicatesView />,
-  advisor: (
-    <ComingSoon
-      phase={4}
-      title="Cleanup Advisor"
-      description="A curated knowledge base of Windows space sinks, each rated Safe / Caution / Expert — with reclaimable sizes and receipts."
-      features={[
-        "40+ detectors: temp, caches, Windows.old, node_modules…",
-        "One-click cleanup for the Safe tier",
-        "Every action reversible by default",
-      ]}
-    />
-  ),
+  advisor: <AdvisorView />,
   ai: (
     <ComingSoon
       phase={5}

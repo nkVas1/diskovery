@@ -174,3 +174,29 @@ export function startDedup(minSize: number, onEvent: (e: DedupEvent) => void) {
 export const cancelDedup = () => invoke<void>("cancel_dedup");
 export const dedupResults = (offset: number, limit: number) =>
   invoke<DedupResults>("dedup_results", { offset, limit });
+
+/* ---- cleanup advisor ---- */
+
+export type Tier = "safe" | "caution" | "expert";
+
+export interface FindingDto {
+  ruleId: string;
+  title: string;
+  tier: Tier;
+  rationale: string;
+  actionHint: string;
+  bytes: number;
+  itemCount: number;
+  locations: string[];
+  deletable: boolean;
+}
+
+export interface CleanReport {
+  removedBytes: number;
+  removedItems: number;
+  failedItems: number;
+}
+
+export const advisorAnalyze = () => invoke<FindingDto[]>("advisor_analyze");
+export const advisorClean = (ruleId: string) =>
+  invoke<CleanReport>("advisor_clean", { ruleId });
